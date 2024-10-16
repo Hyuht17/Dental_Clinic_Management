@@ -1,6 +1,6 @@
 package com.example.demo.model;
 
-import groovy.transform.stc.ClosureParams;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
