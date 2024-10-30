@@ -6,6 +6,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+import java.util.Date;
+
 @Entity
 @Builder
 @Data
@@ -20,7 +23,7 @@ public class Bill {
 
     @ManyToOne
     @JoinColumn(name = "patient_id", nullable = false)
-    private Patient patient;
+    private Patient patient_id;
 
     @ManyToOne
     @JoinColumn(name = "treatment_id", nullable = false)
@@ -28,4 +31,12 @@ public class Bill {
 
     @Column(name = "total_amount")
     private double totalAmount;
+
+    @Column(name = "date")
+    private Date date;
+
+    @PrePersist
+    protected void onCreate() {
+        date = new Date(); // Cập nhật thời gian hiện tại khi tạo Bill mới
+    }
 }

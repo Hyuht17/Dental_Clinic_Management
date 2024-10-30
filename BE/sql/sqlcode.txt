@@ -24,7 +24,6 @@ CREATE TABLE appointments (
     appointment_date DATE NOT NULL,
     appointment_time TIME NOT NULL,
     notes VARCHAR(MAX)
-
 );
 GO
 
@@ -49,8 +48,11 @@ CREATE TABLE roles(
 )
 
 CREATE TABLE dentist_role(
-	dentist_id INT FOREIGN KEY REFERENCES dentists(id),
-	role_id INT FOREIGN KEY REFERENCES roles(id)
+	dentist_id INT,
+	role_id INT,
+	PRIMARY KEY (dentist_id, role_id),
+	FOREIGN KEY(dentist_id) REFERENCES dentists(id),
+	FOREIGN KEY(role_id) REFERENCES roles(id)
 )
 
 
@@ -61,8 +63,7 @@ CREATE TABLE treatments (
 	dentist_id INT FOREIGN KEY REFERENCES dentists(id),
     treatment_date DATE NOT NULL,
     fees DECIMAL(18, 2) NOT NULL, -- Phí điều trị
-    notes VARCHAR(MAX),
-	service_name VARCHAR(100) NOT NULL
+    notes VARCHAR(MAX)
 );
 GO
 -- Bảng Service (Dịch vụ)
@@ -72,7 +73,7 @@ CREATE TABLE services (
     price DECIMAL(18, 2) NOT NULL
 );
 GO
-CREATE TABLE treatments_services (
+CREATE TABLE treatment_service (
     treatment_id INT,
     service_id INT,
     PRIMARY KEY (treatment_id, service_id),
@@ -84,14 +85,14 @@ GO
 CREATE TABLE prescriptions (
     id INT PRIMARY KEY IDENTITY(1,1),
     treatment_id INT FOREIGN KEY REFERENCES treatments(id),
-    medicine_name VARCHAR(100),
-	price DECIMAL (18,2) NOT NULL
+	total_price DECIMAL (18,2) -- Tinh thong qua bang medicines
 );
 GO
 -- Bảng Medicine (Loại thuốc) - Không chứa giá
 CREATE TABLE medicines (
     id INT PRIMARY KEY IDENTITY(1,1),
-    type NVARCHAR(100) -- Loại thuốc (ví dụ: kháng sinh, giảm đau)
+    medicine_name NVARCHAR(100), -- Loại thuốc (ví dụ: kháng sinh, giảm đau)
+	price DECIMAL(18,2) NOT NULL
 );
 GO
 CREATE TABLE prescription_medicine (
@@ -99,11 +100,7 @@ CREATE TABLE prescription_medicine (
     medicine_id INT,
 	PRIMARY KEY (prescription_id, medicine_id),
     FOREIGN KEY (prescription_id) REFERENCES prescriptions(id),
-    FOREIGN KEY (medicine_id) REFERENCES medicines(id),
-    dosage NVARCHAR(50),  -- Liều lượng cho từng thuốc trong đơn
-    days INT,  -- Số ngày dùng cho từng thuốc
-	price DECIMAL(18, 2) NOT NULL,  -- Giá tiền cho đơn thuốc này
-    total_price AS (days * price)  -- Tổng tiền của thuốc dựa trên số ngày dùng
+    FOREIGN KEY (medicine_id) REFERENCES medicines(id)
 );
 GO
 

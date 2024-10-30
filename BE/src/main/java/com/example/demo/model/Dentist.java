@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Entity
 @Builder
 @AllArgsConstructor
@@ -15,6 +17,7 @@ import lombok.NoArgsConstructor;
 public class Dentist {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private int id;
 
     @Column(name = "user_name", unique = true, nullable = false)
@@ -36,9 +39,17 @@ public class Dentist {
     private String email;
 
     @Column(name = "status")
-    private String status;
+    private int status;
 
     @Column(name = "is_working")
-    private String isWorking;
+    private int isWorking;
+
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinTable(
+            name = "dentist_role",
+            joinColumns = @JoinColumn(name = "dentist_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private List<Role> roles;
 
 }
