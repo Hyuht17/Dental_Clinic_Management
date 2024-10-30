@@ -110,5 +110,5 @@ CREATE TABLE bills (
     patient_id INT FOREIGN KEY REFERENCES patients(id),
     treatment_id INT FOREIGN KEY REFERENCES treatments(id),
     total_amount DECIMAL(18, 2) NOT NULL,
-    date DATE DEFAULT GETDATE()
+    date DATE
 );
