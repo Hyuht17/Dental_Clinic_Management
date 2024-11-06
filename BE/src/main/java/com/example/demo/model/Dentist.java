@@ -1,10 +1,7 @@
 package com.example.demo.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
@@ -12,6 +9,8 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @Data
+@Getter
+@Setter
 @NoArgsConstructor
 @Table(name = "dentists")
 public class Dentist {
@@ -52,4 +51,14 @@ public class Dentist {
     )
     private List<Role> roles;
 
+    public Dentist(String userName, String password, String fullName, String position, String phone, String email, int isWorking, List<Role> roles) {
+        this.userName = userName;
+        this.password = password;
+        this.fullName = fullName;
+        this.position = position;
+        this.phone = phone;
+        this.email = email;
+        this.isWorking = isWorking;
+        this.roles = roles;
+    }
 }

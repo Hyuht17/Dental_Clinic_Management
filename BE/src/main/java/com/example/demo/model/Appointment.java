@@ -2,10 +2,7 @@ package com.example.demo.model;
 
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.sql.Time;
 import java.util.Date;
@@ -13,6 +10,8 @@ import java.util.Date;
 @Entity
 @Builder
 @Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "appointments")
@@ -25,7 +24,7 @@ public class Appointment {
 
     @ManyToOne
     @JoinColumn(name = "patient_id", nullable = false)
-    private Patient patientId;
+    private Patient patient;
 
     @Column(name = "appointmemt_date")
     private Date appointmentDate;
@@ -35,4 +34,5 @@ public class Appointment {
 
     @Column(name = "notes")
     private String notes;
+
 }

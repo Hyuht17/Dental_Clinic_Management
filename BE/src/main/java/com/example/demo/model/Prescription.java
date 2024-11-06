@@ -1,16 +1,15 @@
 package com.example.demo.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
 @Entity
 @Builder
 @Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "prescriptions")
@@ -23,7 +22,7 @@ public class Prescription {
 
     @ManyToOne
     @JoinColumn(name = "treatment_id", nullable = false)
-    private Treatment treatment_id;
+    private Treatment treatment;
 
     @Column(name = "total_price")
     private double totalPrice;

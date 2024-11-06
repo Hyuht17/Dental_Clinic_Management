@@ -1,10 +1,7 @@
 package com.example.demo.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.Date;
 import java.util.List;
@@ -12,6 +9,8 @@ import java.util.List;
 @Entity
 @Builder
 @Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "treatments")
@@ -24,11 +23,11 @@ public class Treatment {
 
     @ManyToOne
     @JoinColumn(name = "patient_id", nullable = false)
-    private Patient patient_id;
+    private Patient patient;
 
     @ManyToOne
     @JoinColumn(name = "dentist_id", nullable = false)
-    private Dentist dentist_id;
+    private Dentist dentist;
 
     @Column(name = "treatment_date", nullable = false)
     private Date treatmentDate;
