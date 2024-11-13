@@ -23,6 +23,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class DentistServiceImpl implements DentistService {
 
+    @Autowired
     private DentistRepository dentistRepository;
 
     private RoleRepository roleRepository;
