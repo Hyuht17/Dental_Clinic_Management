@@ -13,13 +13,11 @@ import java.util.List;
 @Builder
 public class DentistDto {
     private int dentistId;
-    private String userName;
-    private String password;
-    private String fullName;
-    private String position;
-    private String phone;
+    private String imgUrl;
+    private String name;
     private String email;
-    private int status;
-    private int isWorking;
+    private String password;
+    private String fees;
+    private String speciality;
     private List<String> roles;
 }

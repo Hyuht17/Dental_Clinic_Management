@@ -23,51 +23,46 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class DentistServiceImpl implements DentistService {
 
-
     private DentistRepository dentistRepository;
 
     private RoleRepository roleRepository;
 
+    private final ModelMapper modelMapper;
+
+//    @Autowired
+//    private PasswordEncoder passwordEncoder;
+
+
     @Override
-    public Dentist save(DentistDto registrationDto) {
-        if (dentistRepository.findByDentistName(registrationDto.getUserName()) != null || dentistRepository.findByEmail(registrationDto.getEmail()) != null) {
+    public DentistDto save(DentistDto registrationDto) {
+        if (dentistRepository.findByEmail(registrationDto.getEmail()) != null) {
             throw new UserAlreadyExistsException("Dentist with this email already exists.");
         }
-        Role userRole = roleRepository.findByName("ROLE_USER");
+        Role userRole = roleRepository.findByName("ROLE_DENTIST");
         if (userRole == null) {
-            userRole = new Role("ROLE_USER");
+            userRole = new Role("ROLE_DENTIST");
             userRole = roleRepository.save(userRole);
         }
 //        String password = passwordEncoder.encode(registrationDto.getPassword());
 //        registrationDto.setPassword(password);
-        Dentist user = new Dentist(registrationDto.getUserName(),
-                registrationDto.getPassword(),
-                registrationDto.getFullName(),
-                registrationDto.getPosition(),
-                registrationDto.getPhone(),
+        Dentist user = new Dentist(registrationDto.getImgUrl(),
+                registrationDto.getName(),
                 registrationDto.getEmail(),
-                registrationDto.getIsWorking(),
+                registrationDto.getPassword(),
+                registrationDto.getFees(),
+                registrationDto.getSpeciality(),
                 Arrays.asList(userRole));
-        return dentistRepository.save(user);
+        Dentist savedDentist = dentistRepository.save(user);
+        return modelMapper.map(savedDentist, DentistDto.class);
     }
 
     @Override
-    public Boolean checkPasswordUser(String username, String password) {
-        Dentist user = dentistRepository.findByDentistName(username);
-        if (user.getPassword().equals(password)) return true;
-        return false;
-    }
-
-    @Override
-    public Boolean checkUsernameUser(String username) {
-        Dentist user = dentistRepository.findByDentistName(username);
-        if (user==null) return false;
-        return true;
-    }
-
-    @Override
-    public Dentist getUserByUsername(String username) {
-        return dentistRepository.getDentistByUsername(username);
+    public Optional<DentistDto> login(String email, String password) {
+        Dentist dentist = dentistRepository.findByEmail(email);
+        if (dentist != null && dentist.getPassword().equals(password)) {
+            return Optional.of(modelMapper.map(dentist, DentistDto.class));
+        }
+        return Optional.empty();
     }
 
 }

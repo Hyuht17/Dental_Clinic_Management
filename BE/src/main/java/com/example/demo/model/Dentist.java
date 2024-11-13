@@ -19,23 +19,23 @@ public class Dentist {
     @Column(name = "id")
     private int id;
 
-    @Column(name = "user_name", unique = true, nullable = false)
-    private String userName;
+    @Column(name = "img_url")
+    private String imgUrl;
+
+    @Column(name = "name")
+    private String name;
+
+    @Column(name = "email", unique = true, nullable = false)
+    private String email;
 
     @Column(name = "password")
     private String password;
 
-    @Column(name = "full_name")
-    private String fullName;
+    @Column(name = "fees")
+    private String fees;
 
-    @Column(name = "position")
-    private String position;
-
-    @Column(name = "phone")
-    private String phone;
-
-    @Column(name = "email")
-    private String email;
+    @Column(name = "speciality")
+    private String speciality;
 
     @Column(name = "status")
     private int status;
@@ -51,14 +51,13 @@ public class Dentist {
     )
     private List<Role> roles;
 
-    public Dentist(String userName, String password, String fullName, String position, String phone, String email, int isWorking, List<Role> roles) {
-        this.userName = userName;
-        this.password = password;
-        this.fullName = fullName;
-        this.position = position;
-        this.phone = phone;
+    public Dentist(String imgUrl, String name, String email, String password, String fees, String speciality, List<Role> roles) {
+        this.imgUrl = imgUrl;
+        this.name = name;
         this.email = email;
-        this.isWorking = isWorking;
+        this.password = password;
+        this.fees = fees;
+        this.speciality = speciality;
         this.roles = roles;
     }
 }
