@@ -27,6 +27,7 @@ public class Role {
             joinColumns = @JoinColumn(name = "role_id"),
             inverseJoinColumns = @JoinColumn(name = "dentist_id")
     )
+    @ToString.Exclude
     private List<Dentist> dentists;
 
     public Role(String name) {

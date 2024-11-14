@@ -49,6 +49,7 @@ public class Dentist {
             joinColumns = @JoinColumn(name = "dentist_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
+    @ToString.Exclude
     private List<Role> roles;
 
     public Dentist(String imgUrl, String name, String email, String password, String fees, String speciality, List<Role> roles) {
@@ -60,4 +61,5 @@ public class Dentist {
         this.speciality = speciality;
         this.roles = roles;
     }
+
 }

@@ -25,7 +25,7 @@ public class DentistServiceImpl implements DentistService {
 
     @Autowired
     private DentistRepository dentistRepository;
-
+    @Autowired
     private RoleRepository roleRepository;
 
     private final ModelMapper modelMapper;

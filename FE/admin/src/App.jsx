@@ -19,6 +19,8 @@ const App = () => {
 
   const { dToken } = useContext(DoctorContext)
   const { aToken } = useContext(AdminContext)
+  console.log('Doctor Token:', dToken);
+  console.log('Admin Token:', aToken);
 
   return dToken || aToken ? (
     <div className='bg-[#F8F9FD]'>
@@ -44,6 +46,7 @@ const App = () => {
       <Login />
     </>
   )
+  
 }
 
 export default App

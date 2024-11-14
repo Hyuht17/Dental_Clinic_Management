@@ -22,9 +22,12 @@ const Login = () => {
     if (state === 'Admin') {
 
       const { data } = await axios.post(backendUrl + '/api/admin/login', { email, password })
+      console.log('Doctor Token:', data.token);
       if (data.success) {
         setAToken(data.token)
+
         localStorage.setItem('aToken', data.token)
+        
       } else {
         toast.error(data.message)
       }
