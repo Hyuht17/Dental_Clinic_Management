@@ -9,5 +9,6 @@ import java.util.Optional;
 
 public interface DentistService {
     DentistDto save(DentistDto dentist);
-    Optional<DentistDto> login(String email, String password);
+    boolean login(String email, String password);
+    boolean checkRole(String email);
 }

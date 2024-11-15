@@ -18,32 +18,34 @@ const Login = () => {
 
   const onSubmitHandler = async (event) => {
     event.preventDefault();
-
-    if (state === 'Admin') {
-
-      const { data } = await axios.post(backendUrl + '/api/admin/login', { email, password })
-      console.log('Doctor Token:', data.token);
-      if (data.success) {
-        setAToken(data.token)
-
-        localStorage.setItem('aToken', data.token)
-        
+  
+    try {
+      let response;
+  
+      if (state === 'Admin') {
+        response = await axios.post(backendUrl + '/api/admin/login', { email, password });
+        console.log('Admin Token:', response.data.token);
+  
+        if (response.data.success) {
+          setAToken(response.data.token);
+          localStorage.setItem('aToken', response.data.token);
+        } else {
+          toast.error(response.data.message);
+        }
+  
       } else {
-        toast.error(data.message)
+        response = await axios.post(backendUrl + '/api/doctor/login', { email, password });
+        if (response.data.success) {
+          setDToken(response.data.token);
+          localStorage.setItem('dToken', response.data.token);
+        } else {
+          toast.error(response.data.message);
+        }
       }
-
-    } else {
-
-      const { data } = await axios.post(backendUrl + '/api/doctor/login', { email, password })
-      if (data.success) {
-        setDToken(data.token)
-        localStorage.setItem('dToken', data.token)
-      } else {
-        toast.error(data.message)
-      }
-
+    } catch (error) {
+      // Bắt lỗi nếu có vấn đề kết nối hoặc lỗi hệ thống
+      toast.error("Your email or password is wrong. Or you don't have permission");
     }
-
   }
 
   return (

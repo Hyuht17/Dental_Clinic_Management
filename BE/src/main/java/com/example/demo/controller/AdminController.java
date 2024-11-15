@@ -1,23 +1,19 @@
+
 package com.example.demo.controller;
 
 import com.example.demo.dto.DentistDto;
-import com.example.demo.dto.LoginDto;
 import com.example.demo.service.DentistService;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
+
+import static com.example.demo.controller.GenToken.generateToken;
 
 @RestController
 @RequiredArgsConstructor
@@ -26,9 +22,6 @@ import java.util.Optional;
 public class AdminController {
 
     private final DentistService dentistService;
-
-    @Value("${jwt.secret}")
-    private String jwtSecret;
 
     @PostMapping("/add-doctor")
     @Operation(summary = "Luu 1 dentist vao phong kham")
@@ -59,36 +52,34 @@ public class AdminController {
         }
     }
 
+
     @PostMapping("/login")
-    public ResponseEntity<Map<String, Object>> login(@RequestBody LoginDto login) {
+    public ResponseEntity<Map<String, Object>> loginAdmin(@RequestBody Map<String, String> request) {
         Map<String, Object> response = new HashMap<>();
+
         try {
-            Optional<DentistDto> dentistDto = dentistService.login(login.getEmail(), login.getPassword());
-
-            if (dentistDto.isPresent()) {
-                String token = Jwts.builder()
-                        .setSubject(dentistDto.get().getEmail())
-                        .signWith(SignatureAlgorithm.HS256, jwtSecret)
-                        .compact();
-
-                // Đảm bảo mã hóa Base64 được thực hiện đúng cách
-                String encodedToken = Base64.getEncoder().encodeToString(token.getBytes());
+            String email = request.get("email");
+            String password = request.get("password");
+            // Kiểm tra role của người dùng
+            if (!dentistService.checkRole(email)) {
+                response.put("success", false);
+                response.put("message", "Không đủ quyền");
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);  // Trả về 403 Forbidden
+            }
+            if (dentistService.login(email, password) == true) {
+                // Tạo token sử dụng hàm tự viết
+                String token = generateToken(email, password);
 
                 response.put("success", true);
-                response.put("token", encodedToken);
-                return ResponseEntity.ok(response);
+                response.put("token", token);
             } else {
                 response.put("success", false);
                 response.put("message", "Invalid credentials");
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
             }
-
         } catch (Exception e) {
-            e.printStackTrace();
             response.put("success", false);
             response.put("message", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
+        return ResponseEntity.ok(response);
     }
-
 }

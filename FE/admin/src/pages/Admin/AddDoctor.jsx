@@ -30,9 +30,9 @@ const AddDoctor = () => {
             formData.append('password', password)
             formData.append('fees', Number(fees))
             formData.append('speciality', speciality)
-            
 
-            // console log formdata            
+
+            // console log formdata
             formData.forEach((value, key) => {
                 console.log(`${key}: ${value}`);
             });
@@ -44,7 +44,6 @@ const AddDoctor = () => {
                 setName('')
                 setPassword('')
                 setEmail('')
-            
                 setFees('')
             } else {
                 toast.error(data.message)
@@ -91,7 +90,7 @@ const AddDoctor = () => {
                             <input onChange={e => setPassword(e.target.value)} value={password} className='border rounded px-3 py-2' type="password" placeholder='Password' required />
                         </div>
 
-                        
+
 
                         <div className='flex-1 flex flex-col gap-1'>
                             <p>Fees</p>

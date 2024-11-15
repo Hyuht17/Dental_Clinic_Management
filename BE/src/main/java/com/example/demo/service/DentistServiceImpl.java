@@ -58,12 +58,21 @@ public class DentistServiceImpl implements DentistService {
     }
 
     @Override
-    public Optional<DentistDto> login(String email, String password) {
+    public boolean login(String email, String password) {
         Dentist dentist = dentistRepository.findByEmail(email);
         if (dentist != null && dentist.getPassword().equals(password)) {
-            return Optional.of(modelMapper.map(dentist, DentistDto.class));
+            return true;
         }
-        return Optional.empty();
+        return false;
+    }
+
+    @Override
+    public boolean checkRole(String email) {
+        List<Integer> roleIds = dentistRepository.findRoleIdsByEmail(email);
+        if(roleIds.contains(2)){
+            return true;
+        }
+        return false;
     }
 
 }
