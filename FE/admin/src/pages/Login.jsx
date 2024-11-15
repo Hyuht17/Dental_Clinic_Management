@@ -24,8 +24,7 @@ const Login = () => {
   
       if (state === 'Admin') {
         response = await axios.post(backendUrl + '/api/admin/login', { email, password });
-        console.log('Admin Token:', response.data.token);
-  
+
         if (response.data.success) {
           setAToken(response.data.token);
           localStorage.setItem('aToken', response.data.token);
