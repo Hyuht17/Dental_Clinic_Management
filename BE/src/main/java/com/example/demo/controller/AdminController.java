@@ -3,7 +3,9 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.DentistDto;
 import com.example.demo.service.DentistService;
+import com.example.demo.service.S3Service;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.SpringVersion;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +25,8 @@ public class AdminController {
 
     private final DentistService dentistService;
 
+    private final S3Service S3Service;
+
     @PostMapping("/add-doctor")
     @Operation(summary = "Luu 1 dentist vao phong kham")
     public ResponseEntity<?> save(@RequestPart("image") MultipartFile imageFile,
@@ -31,24 +35,32 @@ public class AdminController {
                                   @RequestPart("password") String password,
                                   @RequestPart("fees") String fees,
                                   @RequestPart("speciality") String speciality) {
+        Map<String, Object> response = new HashMap<>();
         try {
             if (imageFile == null || imageFile.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Image file is required.");
+                response.put("success", false);
+                response.put("message", "Image file is required.");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
             }
-            String fileName = imageFile.getOriginalFilename();
+            String imageUrl = S3Service.uploadFile(imageFile);
             DentistDto dentistDto = DentistDto.builder()
                     .name(name)
                     .email(email)
                     .password(password)
                     .fees(fees)
                     .speciality(speciality)
-                    .imgUrl(fileName)
+                    .imgUrl(imageUrl)
                     .build();
-            return ResponseEntity.ok(dentistService.save(dentistDto));
+            dentistService.save(dentistDto);
+            response.put("success", true);
+            response.put("message", "Dentist added successfully.");
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             e.printStackTrace();
+            response.put("success", false);
+            response.put("message", "An error occurred while processing the request: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("An error occurred while processing the request: " + e.getMessage());
+                    .body(response);
         }
     }
 
