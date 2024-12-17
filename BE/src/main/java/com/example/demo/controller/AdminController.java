@@ -6,6 +6,7 @@ import com.example.demo.dto.DentistDto;
 import com.example.demo.dto.PatientDto;
 import com.example.demo.model.Appointment;
 import com.example.demo.model.Dentist;
+import com.example.demo.repository.DentistRepository;
 import com.example.demo.service.AppointmentService;
 import com.example.demo.service.DentistService;
 import com.example.demo.service.PatientService;
@@ -36,6 +37,7 @@ public class AdminController {
     private final PatientService patientService;
 
     private final AppointmentService appointmentService;
+    private final DentistRepository dentistRepository;
 
     @PostMapping("/add-doctor")
     @Operation(summary = "Luu 1 dentist vao phong kham")
@@ -193,8 +195,9 @@ public class AdminController {
     }
 
     @PostMapping("/cancel-appointment")
-    public ResponseEntity<Map<String, Object>> cancelAppointment(@RequestHeader(value = "aToken", required = false) String aToken,
-                                                                 @RequestBody Map<String, Integer> request) {
+    public ResponseEntity<Map<String, Object>> cancelAppointment(@RequestBody Map<String, Integer> request,
+                                                                 @RequestHeader(value = "aToken", required = false) String aToken)
+    {
         try {
             // Kiểm tra token nếu cần thiết (tùy vào yêu cầu bảo mật của bạn)
             if (aToken == null || !validateToken(aToken)) {
@@ -204,7 +207,7 @@ public class AdminController {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(unauthorizedResponse);
             }
 
-            int appointmentId = request.get("appointmentId");
+            int appointmentId = Integer.parseInt(request.get("appointmentId").toString());
             AppointmentDto appointment = appointmentService.findAppointmentById(appointmentId);
             if (appointment == null) {
                 Map<String, Object> notFoundResponse = new HashMap<>();
@@ -219,6 +222,77 @@ public class AdminController {
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("message", "Appointment cancelled successfully");
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+    }
+
+    @GetMapping("/all-doctors")
+    public ResponseEntity<Map<String, Object>> getAllDentists(@RequestHeader(value = "aToken", required = false) String aToken) {
+        try {
+            // Kiểm tra token nếu cần thiết (tùy vào yêu cầu bảo mật của bạn)
+            if (aToken == null || !validateToken(aToken)) {
+                Map<String, Object> unauthorizedResponse = new HashMap<>();
+                unauthorizedResponse.put("success", false);
+                unauthorizedResponse.put("message", "Unauthorized access");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(unauthorizedResponse);
+            }
+
+            List<Dentist> dentists = dentistService.findAll();
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("dentists", dentists);
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+    }
+
+    @PostMapping("/change-availability")
+    public ResponseEntity<Map<String, Object>> changeAvailability(@RequestBody Map<String, Object> request,
+                                                                 @RequestHeader(value = "aToken", required = false) String aToken) {
+        try {
+            // Kiểm tra token nếu cần thiết (tùy vào yêu cầu bảo mật của bạn)
+            if (aToken == null || !validateToken(aToken)) {
+                Map<String, Object> unauthorizedResponse = new HashMap<>();
+                unauthorizedResponse.put("success", false);
+                unauthorizedResponse.put("message", "Unauthorized access");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(unauthorizedResponse);
+            }
+
+            int dentistId = Integer.parseInt(request.get("dentistId").toString());
+
+            DentistDto dentist = dentistService.findDentistById(dentistId);
+            if (dentist == null) {
+                Map<String, Object> notFoundResponse = new HashMap<>();
+                notFoundResponse.put("success", false);
+                notFoundResponse.put("message", "Dentist not found");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(notFoundResponse);
+            }
+            if(dentist.getStatus() == 1){
+                dentist.setStatus(0);
+            } else {
+                dentist.setStatus(1);
+            }
+            dentistService.update(dentist);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Availability changed successfully");
 
             return ResponseEntity.ok(response);
 

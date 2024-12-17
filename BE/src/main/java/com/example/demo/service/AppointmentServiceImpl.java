@@ -40,7 +40,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     private Appointment toEntity(AppointmentDto appointmentDto) {
-        Optional<Patient> patient = patientRepository.findById(appointmentDto.getAppointmentId());
+        Optional<Patient> patient = patientRepository.findById(appointmentDto.getPatientId());
         Appointment appointment = modelMapper.map(appointmentDto, Appointment.class);
         appointment.setPatient(patient.orElse(null));
         return appointment;

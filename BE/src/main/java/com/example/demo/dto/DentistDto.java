@@ -23,6 +23,7 @@ public class DentistDto {
     private String password;
     private String fees;
     private String speciality;
+    private int status;
     private List<String> roles;
 
     public DentistDto(int id, String name, String imgUrl) {

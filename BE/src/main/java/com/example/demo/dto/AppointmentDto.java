@@ -13,8 +13,8 @@ import java.util.Date;
 @Builder
 public class AppointmentDto {
     private int appointmentId;
-    private int patientId;
     private String patientName;
+    private int patientId;
     private Date appointmentDate;
     private Time appointmentTime;
     private String notes;

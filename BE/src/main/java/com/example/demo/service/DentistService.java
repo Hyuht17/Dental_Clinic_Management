@@ -12,4 +12,6 @@ public interface DentistService {
     boolean login(String email, String password);
     boolean checkRole(String email);
     List<Dentist> findAll();
+    DentistDto findDentistById(int dentist);
+    DentistDto update(DentistDto dentist);
 }

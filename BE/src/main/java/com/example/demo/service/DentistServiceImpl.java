@@ -81,5 +81,25 @@ public class DentistServiceImpl implements DentistService {
         return dentists;
     }
 
+    @Override
+    public DentistDto findDentistById(int dentistId) {
+        Optional<Dentist> dentistOptional = dentistRepository.findById(dentistId);
+        return dentistOptional.map(d -> modelMapper.map(d, DentistDto.class)).orElse(null);
+    }
 
+    @Override
+    public DentistDto update(DentistDto dentistDto) {
+        Optional<Dentist> dentistOptional = dentistRepository.findById(dentistDto.getDentistId());
+        if (dentistOptional.isPresent()) {
+            Dentist dentist = dentistOptional.get();
+            dentist.setName(dentistDto.getName());
+            dentist.setImgUrl(dentistDto.getImgUrl());
+            dentist.setFees(dentistDto.getFees());
+            dentist.setSpeciality(dentistDto.getSpeciality());
+            dentist.setStatus(dentistDto.getStatus());
+            dentistRepository.save(dentist);
+            return modelMapper.map(dentist, DentistDto.class);
+        }
+        return null;
+    }
 }
