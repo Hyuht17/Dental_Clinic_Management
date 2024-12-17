@@ -75,4 +75,11 @@ public class DentistServiceImpl implements DentistService {
         return false;
     }
 
+    @Override
+    public List<Dentist> findAll() {
+        List<Dentist> dentists = dentistRepository.findAll();
+        return dentists;
+    }
+
+
 }

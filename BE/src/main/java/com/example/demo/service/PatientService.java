@@ -5,4 +5,6 @@ import java.util.List;
 public interface PatientService {
     PatientDto save(PatientDto patientDto);
     List<PatientDto> getAll();
+    List<PatientDto> findAll();
+    String findNameById(int id);
 }

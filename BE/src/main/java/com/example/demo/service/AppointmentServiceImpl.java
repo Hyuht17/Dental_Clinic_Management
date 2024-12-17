@@ -1,7 +1,9 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.AppointmentDto;
+import com.example.demo.dto.DentistDto;
 import com.example.demo.model.Appointment;
+import com.example.demo.model.Dentist;
 import com.example.demo.model.Patient;
 import com.example.demo.repository.AppointmentRepository;
 import com.example.demo.repository.PatientRepository;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -50,4 +53,33 @@ public class AppointmentServiceImpl implements AppointmentService {
         return appointmentDto;
     }
 
+    @Override
+    public List<Appointment> findAll() {
+        List<Appointment> appointments = appointmentRepository.findAll();
+        return appointments;
+    }
+
+    @Override
+    public DentistDto findDentistByAppointmentId(int appointmentId) {
+        // Find Dentist associated with the Appointment by ID
+        Optional<Dentist> dentistOptional = appointmentRepository.findAppointmentWithDentist(appointmentId);
+        return dentistOptional.map(d -> new DentistDto(d.getId(), d.getName(), d.getImgUrl()))
+                .orElse(null); // Return null if no Dentist found
+    }
+
+    @Override
+    public List<AppointmentDto> findAppointmentsWithDentists() {
+        List<Appointment> appointments = appointmentRepository.findAll();
+        return appointments.stream().map(appointment -> {
+            AppointmentDto appointmentDto = toDto(appointment);
+            DentistDto dentistDto = findDentistByAppointmentId(appointment.getId());
+            appointmentDto.setDentist(dentistDto);  // Set DentistDto in AppointmentDto
+            return appointmentDto;
+        }).collect(Collectors.toList());
+    }
+
+    @Override
+    public AppointmentDto findAppointmentById(int appointmentId) {
+        return toDto(appointmentRepository.findById(appointmentId));
+    }
 }

@@ -14,7 +14,12 @@ import java.util.Date;
 public class AppointmentDto {
     private int appointmentId;
     private int patientId;
+    private String patientName;
     private Date appointmentDate;
     private Time appointmentTime;
     private String notes;
+    private Boolean cancelled;
+    private Boolean isCompleted;
+    private DentistDto dentist;
+    private double fees = 0;
 }

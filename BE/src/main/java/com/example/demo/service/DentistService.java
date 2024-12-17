@@ -11,4 +11,5 @@ public interface DentistService {
     DentistDto save(DentistDto dentist);
     boolean login(String email, String password);
     boolean checkRole(String email);
+    List<Dentist> findAll();
 }

@@ -1,8 +1,14 @@
 
 package com.example.demo.controller;
 
+import com.example.demo.dto.AppointmentDto;
 import com.example.demo.dto.DentistDto;
+import com.example.demo.dto.PatientDto;
+import com.example.demo.model.Appointment;
+import com.example.demo.model.Dentist;
+import com.example.demo.service.AppointmentService;
 import com.example.demo.service.DentistService;
+import com.example.demo.service.PatientService;
 import com.example.demo.service.S3Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.SpringVersion;
@@ -11,9 +17,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.services.s3.endpoints.internal.Value;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static com.example.demo.controller.GenToken.generateToken;
 
@@ -26,6 +32,10 @@ public class AdminController {
     private final DentistService dentistService;
 
     private final S3Service S3Service;
+
+    private final PatientService patientService;
+
+    private final AppointmentService appointmentService;
 
     @PostMapping("/add-doctor")
     @Operation(summary = "Luu 1 dentist vao phong kham")
@@ -93,5 +103,131 @@ public class AdminController {
             response.put("message", e.getMessage());
         }
         return ResponseEntity.ok(response);
+    }
+
+
+    @GetMapping("/dashboard")
+    public ResponseEntity<Map<String, Object>> getAdminDashboard(@RequestHeader(value = "aToken", required = false) String aToken) {
+        try {
+            // Kiểm tra token nếu cần thiết (tùy vào yêu cầu bảo mật của bạn)
+            if (aToken == null || !validateToken(aToken)) {
+                Map<String, Object> unauthorizedResponse = new HashMap<>();
+                unauthorizedResponse.put("success", false);
+                unauthorizedResponse.put("message", "Unauthorized access");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(unauthorizedResponse);
+            }
+
+            // Lấy danh sách các đối tượng từ database
+            List<Dentist> dentists = dentistService.findAll();
+            List<PatientDto> patients = patientService.findAll();
+            List<Appointment> appointments = appointmentService.findAll();
+            List<AppointmentDto> appointmentDtos = appointmentService.findAppointmentsWithDentists();
+
+            // Đảo ngược danh sách các cuộc hẹn để lấy các cuộc hẹn mới nhất
+            Collections.reverse(appointments);
+
+            // Tạo đối tượng để trả về
+            Map<String, Object> dashData = new HashMap<>();
+            dashData.put("dentists", dentists.size());
+            dashData.put("appointments", appointments.size());
+            dashData.put("patients", patients.size());
+            dashData.put("latestAppointments", appointmentDtos);
+            // Tạo response JSON
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("dashData", dashData);
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+    }
+
+    // Phương thức mẫu để kiểm tra token (cần được cài đặt cụ thể hơn)
+    private boolean validateToken(String token) {
+        // Thêm logic để xác thực token tại đây
+        return true; // Trả về true nếu hợp lệ, false nếu không
+    }
+
+    @GetMapping("/appointments")
+    public ResponseEntity<Map<String, Object>> getAppointments(@RequestHeader(value = "aToken", required = false) String aToken) {
+        try {
+            // Kiểm tra token nếu cần thiết (tùy vào yêu cầu bảo mật của bạn)
+            if (aToken == null || !validateToken(aToken)) {
+                Map<String, Object> unauthorizedResponse = new HashMap<>();
+                unauthorizedResponse.put("success", false);
+                unauthorizedResponse.put("message", "Unauthorized access");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(unauthorizedResponse);
+            }
+
+            // Lấy danh sách các cuộc hẹn từ database
+            List<AppointmentDto> appointments = appointmentService.findAppointmentsWithDentists();
+            for (AppointmentDto appointment : appointments) {
+                DentistDto dentist = appointmentService.findDentistByAppointmentId(appointment.getAppointmentId());
+                appointment.setDentist(dentist);
+
+                String patientName = patientService.findNameById(appointment.getPatientId());
+                appointment.setPatientName(patientName);
+            }
+
+
+            // Tạo response JSON
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("appointments", appointments);
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+    }
+
+    @PostMapping("/cancel-appointment")
+    public ResponseEntity<Map<String, Object>> cancelAppointment(@RequestHeader(value = "aToken", required = false) String aToken,
+                                                                 @RequestBody Map<String, Integer> request) {
+        try {
+            // Kiểm tra token nếu cần thiết (tùy vào yêu cầu bảo mật của bạn)
+            if (aToken == null || !validateToken(aToken)) {
+                Map<String, Object> unauthorizedResponse = new HashMap<>();
+                unauthorizedResponse.put("success", false);
+                unauthorizedResponse.put("message", "Unauthorized access");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(unauthorizedResponse);
+            }
+
+            int appointmentId = request.get("appointmentId");
+            AppointmentDto appointment = appointmentService.findAppointmentById(appointmentId);
+            if (appointment == null) {
+                Map<String, Object> notFoundResponse = new HashMap<>();
+                notFoundResponse.put("success", false);
+                notFoundResponse.put("message", "Appointment not found");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(notFoundResponse);
+            }
+
+            appointment.setCancelled(true);
+            appointmentService.save(appointment);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Appointment cancelled successfully");
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
     }
 }
