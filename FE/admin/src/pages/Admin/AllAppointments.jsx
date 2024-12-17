@@ -40,7 +40,7 @@ const AllAppointments = () => {
             <div className='flex items-center gap-2'>
               <img src={item.dentist.image} className='w-8 rounded-full bg-gray-200' alt="" /> <p>{item.dentist.name}</p>
             </div>
-            {/* <p>{currency}{item.amount}</p> */}
+            {/* <p>{currency}{item.      amount}</p> */}
             {item.cancelled ? <p className='text-red-400 text-xs font-medium'>Cancelled</p> : item.isCompleted ? <p className='text-green-500 text-xs font-medium'>Completed</p> : <img onClick={() => cancelAppointment(item.appointmentId)} className='w-10 cursor-pointer' src={assets.cancel_icon} alt="" />}
           </div>
         ))}
