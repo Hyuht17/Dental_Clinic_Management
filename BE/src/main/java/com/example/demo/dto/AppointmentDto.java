@@ -15,6 +15,7 @@ public class AppointmentDto {
     private int appointmentId;
     private String patientName;
     private int patientId;
+    private String patientImgUrl;
     private Date appointmentDate;
     private Time appointmentTime;
     private String notes;

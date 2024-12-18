@@ -37,6 +37,7 @@ const Login = () => {
         if (response.data.success) {
           setDToken(response.data.token);
           localStorage.setItem('dToken', response.data.token);
+          localStorage.setItem('dentistId', response.data.dentistId);
         } else {
           toast.error(response.data.message);
         }

@@ -14,4 +14,5 @@ public interface DentistService {
     List<Dentist> findAll();
     DentistDto findDentistById(int dentist);
     DentistDto update(DentistDto dentist);
+    DentistDto findDentistByEmail(String email);
 }

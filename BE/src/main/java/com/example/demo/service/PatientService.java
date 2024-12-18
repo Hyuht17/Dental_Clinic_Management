@@ -7,4 +7,5 @@ public interface PatientService {
     List<PatientDto> getAll();
     List<PatientDto> findAll();
     String findNameById(int id);
+    List<PatientDto> findPatientByDentistId(int dentistId);
 }

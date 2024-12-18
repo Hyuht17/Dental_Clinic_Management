@@ -82,4 +82,10 @@ public class AppointmentServiceImpl implements AppointmentService {
     public AppointmentDto findAppointmentById(int appointmentId) {
         return toDto(appointmentRepository.findById(appointmentId));
     }
+
+    @Override
+    public List<AppointmentDto> findAppointmentByDentistId(int dentistId) {
+        List<Appointment> appointments = appointmentRepository.findAppointmentByDentistId(dentistId);
+        return appointments.stream().map(this::toDto).toList();
+    }
 }

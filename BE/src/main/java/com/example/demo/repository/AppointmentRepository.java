@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.springframework.http.HttpHeaders.FROM;
@@ -26,6 +27,16 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Intege
 
     @Query("SELECT a FROM Appointment a WHERE a.id = :id")
     Appointment findById(@Param("id") int id);
+
+    @Query("""
+        SELECT a
+        FROM Appointment a
+        JOIN Patient p ON p.id = a.patient.id
+        JOIN Treatment t ON p.id = t.patient.id
+        WHERE t.dentist.id = :dentistId
+    """)
+    List<Appointment> findAppointmentByDentistId(@Param("dentistId") int dentistId);
+
 
 }
 

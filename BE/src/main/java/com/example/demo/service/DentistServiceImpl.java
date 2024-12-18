@@ -102,4 +102,10 @@ public class DentistServiceImpl implements DentistService {
         }
         return null;
     }
+
+    @Override
+    public DentistDto findDentistByEmail(String email) {
+        Dentist dentist = dentistRepository.findByEmail(email);
+        return modelMapper.map(dentist, DentistDto.class);
+    }
 }

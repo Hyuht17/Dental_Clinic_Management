@@ -52,4 +52,10 @@ public class PatientServiceImpl implements PatientService {
         Patient patient = patientRepository.findById(id).orElse(null);
         return patient.getFullName();
     }
+
+    @Override
+    public List<PatientDto> findPatientByDentistId(int dentistId) {
+        List<Patient> patients = patientRepository.findPatientByDentistId(dentistId);
+        return patients.stream().map(this::toDto).toList();
+    }
 }
