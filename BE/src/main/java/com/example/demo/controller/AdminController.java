@@ -263,45 +263,57 @@ public class AdminController {
     }
 
     @PostMapping("/change-availability")
-    public ResponseEntity<Map<String, Object>> changeAvailability(@RequestBody Map<String, Object> request,
-                                                                 @RequestHeader(value = "aToken", required = false) String aToken) {
+    public ResponseEntity<Map<String, Object>> changeAvailability(
+            @RequestBody Map<String, Object> request,
+            @RequestHeader(value = "aToken", required = false) String aToken) {
+        Map<String, Object> response = new HashMap<>();
         try {
-            // Kiểm tra token nếu cần thiết (tùy vào yêu cầu bảo mật của bạn)
+            // Validate token
             if (aToken == null || !validateToken(aToken)) {
-                Map<String, Object> unauthorizedResponse = new HashMap<>();
-                unauthorizedResponse.put("success", false);
-                unauthorizedResponse.put("message", "Unauthorized access");
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(unauthorizedResponse);
+                response.put("success", false);
+                response.put("message", "Unauthorized access");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
             }
 
-            int dentistId = Integer.parseInt(request.get("dentistId").toString());
+            // Check if 'dentistId' is provided
+            if (!request.containsKey("dentistId") || request.get("dentistId") == null) {
+                response.put("success", false);
+                response.put("message", "'dentistId' is missing or null in the request body");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            }
 
+            // Parse 'dentistId'
+            int dentistId;
+            try {
+                dentistId = Integer.parseInt(request.get("dentistId").toString());
+            } catch (NumberFormatException e) {
+                response.put("success", false);
+                response.put("message", "'dentistId' must be a valid integer");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            }
+
+            // Fetch dentist by ID
             DentistDto dentist = dentistService.findDentistById(dentistId);
             if (dentist == null) {
-                Map<String, Object> notFoundResponse = new HashMap<>();
-                notFoundResponse.put("success", false);
-                notFoundResponse.put("message", "Dentist not found");
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(notFoundResponse);
+                response.put("success", false);
+                response.put("message", "Dentist not found");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
             }
-            if(dentist.getStatus() == 1){
-                dentist.setStatus(0);
-            } else {
-                dentist.setStatus(1);
-            }
+
+            // Toggle availability
+            dentist.setStatus(dentist.getStatus() == 1 ? 0 : 1);
             dentistService.update(dentist);
 
-            Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("message", "Availability changed successfully");
-
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
             e.printStackTrace();
-            Map<String, Object> errorResponse = new HashMap<>();
-            errorResponse.put("success", false);
-            errorResponse.put("message", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+            response.put("success", false);
+            response.put("message", "An error occurred: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
+
 }
