@@ -24,11 +24,15 @@ public class DentistDto {
     private String fees;
     private String speciality;
     private int status;
+    private int isWorking;
     private List<String> roles;
+    private String about;
+    private String position;
 
     public DentistDto(int id, String name, String imgUrl) {
         this.dentistId = id;
         this.name = name;
         this.imgUrl = imgUrl;
     }
+
 }

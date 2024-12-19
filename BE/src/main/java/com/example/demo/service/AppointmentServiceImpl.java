@@ -2,9 +2,11 @@ package com.example.demo.service;
 
 import com.example.demo.dto.AppointmentDto;
 import com.example.demo.dto.DentistDto;
+import com.example.demo.dto.TreatmentDto;
 import com.example.demo.model.Appointment;
 import com.example.demo.model.Dentist;
 import com.example.demo.model.Patient;
+import com.example.demo.model.Treatment;
 import com.example.demo.repository.AppointmentRepository;
 import com.example.demo.repository.PatientRepository;
 import lombok.RequiredArgsConstructor;
@@ -88,4 +90,6 @@ public class AppointmentServiceImpl implements AppointmentService {
         List<Appointment> appointments = appointmentRepository.findAppointmentByDentistId(dentistId);
         return appointments.stream().map(this::toDto).toList();
     }
+
+
 }

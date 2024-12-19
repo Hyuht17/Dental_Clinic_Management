@@ -32,11 +32,11 @@ public class Patient {
     @Column(name = "sex")
     private String sex;
 
-    @Column(name = "email")
+    @Column(name = "email", nullable = false)
     private String email;
 
-    @Column(name = "cccd", unique = true, nullable = false)
-    private String cccd;
+    @Column(name = "password",  nullable = false)
+    private String password;
 
     @Column(name = "address")
     private String address;

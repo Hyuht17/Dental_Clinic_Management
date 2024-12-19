@@ -42,7 +42,6 @@ const AdminContextProvider = (props) => {
                 toast.success(data.message)
                 getAllDoctors()
             } else {
-            
                 toast.error(data.message)
             }
 

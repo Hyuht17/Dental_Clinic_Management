@@ -22,5 +22,6 @@ public class AppointmentDto {
     private Boolean cancelled;
     private Boolean isCompleted;
     private DentistDto dentist;
-    private double fees = 0;
+    private double fees;
+
 }

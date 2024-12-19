@@ -46,7 +46,8 @@ public class AdminController {
                                   @RequestPart("email") String email,
                                   @RequestPart("password") String password,
                                   @RequestPart("fees") String fees,
-                                  @RequestPart("speciality") String speciality) {
+                                  @RequestPart("speciality") String speciality,
+                                  @RequestPart("about") String about) {
         Map<String, Object> response = new HashMap<>();
         try {
             if (imageFile == null || imageFile.isEmpty()) {
@@ -62,6 +63,10 @@ public class AdminController {
                     .fees(fees)
                     .speciality(speciality)
                     .imgUrl(imageUrl)
+                    .status(1)
+                    .isWorking(1)
+                    .position("Dentist")
+                    .about(about)
                     .build();
             dentistService.save(dentistDto);
             response.put("success", true);
@@ -263,8 +268,7 @@ public class AdminController {
     }
 
     @PostMapping("/change-availability")
-    public ResponseEntity<Map<String, Object>> changeAvailability(
-            @RequestBody Map<String, Object> request,
+    public ResponseEntity<Map<String, Object>> changeAvailability(@RequestBody Map<String, Object> request,
             @RequestHeader(value = "aToken", required = false) String aToken) {
         Map<String, Object> response = new HashMap<>();
         try {

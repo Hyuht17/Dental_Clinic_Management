@@ -6,7 +6,7 @@ import { assets } from '../../assets/assets'
 
 const DoctorAppointments = () => {
 
-  const { dToken, appointments, getAppointments, cancelAppointment, completeAppointment } = useContext(DoctorContext)
+  const { dToken, appointments, fees, getAppointments, cancelAppointment, completeAppointment } = useContext(DoctorContext)
   const { slotDateFormat, calculateAge, currency } = useContext(AppContext)
 
   useEffect(() => {
@@ -42,7 +42,7 @@ const DoctorAppointments = () => {
             </div>
             {/* <p className='max-sm:hidden'>{calculateAge(item.patient.dob)}</p> */}
             <p>{slotDateFormat(item.appointmentDate)}</p>
-            {/* <p>{currency}{item.amount}</p> */}
+            <p>{currency}{item.fees}</p>
             {item.cancelled
               ? <p className='text-red-400 text-xs font-medium'>Cancelled</p>
               : item.isCompleted

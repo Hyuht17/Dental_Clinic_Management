@@ -12,6 +12,7 @@ const DoctorContextProvider = (props) => {
     const [dToken, setDToken] = useState(localStorage.getItem('dToken') ? localStorage.getItem('dToken') : '')
     const [dentistId, setDentistId] = useState(localStorage.getItem('dentistId') ? localStorage.getItem('dentistId') : '')
     const [appointments, setAppointments] = useState([])
+    const [totalFees, setTotalFees] = useState([])
     const [dashData, setDashData] = useState(false)
     const [profileData, setProfileData] = useState(false)
 
@@ -37,7 +38,7 @@ const DoctorContextProvider = (props) => {
     const getProfileData = async () => {
         try {
 
-            const { data } = await axios.get(backendUrl + '/api/doctor/profile', { headers: { dToken } })
+            const { data } = await axios.get(`${backendUrl}/api/doctor/profile?dentistId=${dentistId}`, { headers: { dToken } })
             setProfileData(data.profileData)
 
         } catch (error) {
@@ -101,6 +102,7 @@ const DoctorContextProvider = (props) => {
     
             if (data.success) {
                 setDashData(data.dashData);
+                setTotalFees(data.totalFees)
             } else {
                 toast.error(data.message);
             }
@@ -120,6 +122,7 @@ const DoctorContextProvider = (props) => {
         cancelAppointment,
         completeAppointment,
         dashData, getDashData,
+        totalFees, setTotalFees,
         profileData, setProfileData,
         getProfileData,
     }

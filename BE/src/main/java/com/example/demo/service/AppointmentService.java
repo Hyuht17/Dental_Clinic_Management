@@ -2,7 +2,9 @@ package com.example.demo.service;
 
 import com.example.demo.dto.AppointmentDto;
 import com.example.demo.dto.DentistDto;
+import com.example.demo.dto.TreatmentDto;
 import com.example.demo.model.Appointment;
+import com.example.demo.model.Treatment;
 
 import java.util.List;
 import java.util.Optional;

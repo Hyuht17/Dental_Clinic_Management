@@ -52,6 +52,10 @@ public class DentistServiceImpl implements DentistService {
                 registrationDto.getPassword(),
                 registrationDto.getFees(),
                 registrationDto.getSpeciality(),
+                registrationDto.getPosition(),
+                registrationDto.getStatus(),
+                registrationDto.getIsWorking(),
+                registrationDto.getAbout(),
                 Arrays.asList(userRole));
         Dentist savedDentist = dentistRepository.save(user);
         return modelMapper.map(savedDentist, DentistDto.class);
@@ -95,8 +99,10 @@ public class DentistServiceImpl implements DentistService {
             dentist.setName(dentistDto.getName());
             dentist.setImgUrl(dentistDto.getImgUrl());
             dentist.setFees(dentistDto.getFees());
+            dentist.setIsWorking(dentistDto.getIsWorking());
             dentist.setSpeciality(dentistDto.getSpeciality());
             dentist.setStatus(dentistDto.getStatus());
+            dentist.setAbout(dentistDto.getAbout());
             dentistRepository.save(dentist);
             return modelMapper.map(dentist, DentistDto.class);
         }

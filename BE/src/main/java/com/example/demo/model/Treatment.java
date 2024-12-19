@@ -29,8 +29,10 @@ public class Treatment {
     @JoinColumn(name = "dentist_id", nullable = false)
     private Dentist dentist;
 
-    @Column(name = "treatment_date", nullable = false)
-    private Date treatmentDate;
+    @ManyToOne
+    @JoinColumn(name = "appointment_id", nullable = false)
+    private Appointment appointment;
+
 
     @Column(name = "fees", nullable = false)
     private double fees;
