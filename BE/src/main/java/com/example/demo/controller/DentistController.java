@@ -5,6 +5,7 @@ import com.example.demo.dto.AppointmentDto;
 import com.example.demo.dto.DentistDto;
 import com.example.demo.dto.PatientDto;
 import com.example.demo.dto.TreatmentDto;
+import com.example.demo.model.Dentist;
 import com.example.demo.service.AppointmentService;
 import com.example.demo.service.DentistService;
 import com.example.demo.service.PatientService;
@@ -19,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.example.demo.controller.GenToken.generateToken;
+import static com.example.demo.config.GenToken.generateToken;
 
 @RestController
 @RequiredArgsConstructor
@@ -41,12 +42,6 @@ public class DentistController {
         try {
             String email = request.get("email");
             String password = request.get("password");
-//            // Kiểm tra có phải role admin không
-//            if (!dentistService.checkRole(email)) {
-//                response.put("success", false);
-//                response.put("message", "Không đủ quyền");
-//                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);  // Trả về 403 Forbidden
-//            }
             if (dentistService.login(email, password) == true) {
                 // Tạo token sử dụng hàm tự viết
                 String token = generateToken(email, password);
@@ -297,6 +292,29 @@ public class DentistController {
             response.put("success", false);
             response.put("message", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    // Dung cho ben User
+    @GetMapping("/list")
+    public ResponseEntity<Map<String, Object>> getAllDentists() {
+        try {
+
+            List<Dentist> dentists = dentistService.findAll();
+            dentists.remove(0);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("dentists", dentists);
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
     }
 

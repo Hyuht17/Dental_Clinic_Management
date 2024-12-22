@@ -12,17 +12,15 @@ import com.example.demo.service.DentistService;
 import com.example.demo.service.PatientService;
 import com.example.demo.service.S3Service;
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.SpringVersion;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.web.multipart.MultipartFile;
-import software.amazon.awssdk.services.s3.endpoints.internal.Value;
 
 import java.util.*;
 
-import static com.example.demo.controller.GenToken.generateToken;
+import static com.example.demo.config.GenToken.generateToken;
 
 @RestController
 @RequiredArgsConstructor

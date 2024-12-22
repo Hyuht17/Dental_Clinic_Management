@@ -40,4 +40,7 @@ public class Patient {
 
     @Column(name = "address")
     private String address;
+
+    @Column(name = "image")
+    private String image;
 }

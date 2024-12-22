@@ -122,11 +122,7 @@ const AddDoctor = () => {
                                 <option value="Implantology">Implantology</option>
                             </select>
                         </div>
-
-
-                      
-
-                        
+            
 
                     </div>
 
