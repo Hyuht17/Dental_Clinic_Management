@@ -8,20 +8,20 @@ import { toast } from 'react-toastify'
 
 const Appointment = () => {
 
-    const { docId } = useParams()
-    const { doctors, currencySymbol, backendUrl, token, getDoctosData } = useContext(AppContext)
+    const { dentistId } = useParams()
+    const { dentists, currencySymbol, backendUrl, token, getDoctorsData, userId } = useContext(AppContext)
     const daysOfWeek = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
 
-    const [docInfo, setDocInfo] = useState(false)
+    const [dentist, setdentist] = useState(false)
     const [docSlots, setDocSlots] = useState([])
     const [slotIndex, setSlotIndex] = useState(0)
     const [slotTime, setSlotTime] = useState('')
 
     const navigate = useNavigate()
 
-    const fetchDocInfo = async () => {
-        const docInfo = doctors.find((doc) => doc._id === docId)
-        setDocInfo(docInfo)
+    const fetchdentist = async () => {
+        const dentist = dentists.find((doc) => doc.dentistId === dentistId)
+        setdentist(dentist)
     }
 
     const getAvailableSolts = async () => {
@@ -64,7 +64,7 @@ const Appointment = () => {
                 const slotDate = day + "_" + month + "_" + year
                 const slotTime = formattedTime
 
-                const isSlotAvailable = docInfo.slots_booked[slotDate] && docInfo.slots_booked[slotDate].includes(slotTime) ? false : true
+                const isSlotAvailable = dentist.slots_booked[slotDate] && dentist.slots_booked[slotDate].includes(slotTime) ? false : true
 
                 if (isSlotAvailable) {
 
@@ -102,10 +102,10 @@ const Appointment = () => {
 
         try {
 
-            const { data } = await axios.post(backendUrl + '/api/user/book-appointment', { docId, slotDate, slotTime }, { headers: { token } })
+            const { data } = await axios.post(backendUrl + '/api/user/book-appointment', { dentistId, slotDate, slotTime, userId }, { headers: { token } })
             if (data.success) {
                 toast.success(data.message)
-                getDoctosData()
+                getDoctorsData()
                 navigate('/my-appointments')
             } else {
                 toast.error(data.message)
@@ -119,43 +119,43 @@ const Appointment = () => {
     }
 
     useEffect(() => {
-        if (doctors.length > 0) {
-            fetchDocInfo()
+        if (dentists.length > 0) {
+            fetchdentist()
         }
-    }, [doctors, docId])
+    }, [dentists, dentistId])
 
     useEffect(() => {
-        if (docInfo) {
+        if (dentist) {
             getAvailableSolts()
         }
-    }, [docInfo])
+    }, [dentist])
 
-    return docInfo ? (
+    return dentist ? (
         <div>
 
             {/* ---------- Doctor Details ----------- */}
             <div className='flex flex-col sm:flex-row gap-4'>
                 <div>
-                    <img className='bg-primary w-full sm:max-w-72 rounded-lg' src={docInfo.image} alt="" />
+                    <img className='bg-primary w-full sm:max-w-72 rounded-lg' src={dentist.imgUrl} alt="" />
                 </div>
 
                 <div className='flex-1 border border-[#ADADAD] rounded-lg p-8 py-7 bg-white mx-2 sm:mx-0 mt-[-80px] sm:mt-0'>
 
                     {/* ----- Doc Info : name, degree, experience ----- */}
 
-                    <p className='flex items-center gap-2 text-3xl font-medium text-gray-700'>{docInfo.name} <img className='w-5' src={assets.verified_icon} alt="" /></p>
+                    <p className='flex items-center gap-2 text-3xl font-medium text-gray-700'>{dentist.name} <img className='w-5' src={assets.verified_icon} alt="" /></p>
                     <div className='flex items-center gap-2 mt-1 text-gray-600'>
-                        <p>{docInfo.degree} - {docInfo.speciality}</p>
-                        <button className='py-0.5 px-2 border text-xs rounded-full'>{docInfo.experience}</button>
+                        <p>{dentist.speciality}</p>
+                        <button className='py-0.5 px-2 border text-xs rounded-full'>5</button>
                     </div>
 
                     {/* ----- Doc About ----- */}
                     <div>
                         <p className='flex items-center gap-1 text-sm font-medium text-[#262626] mt-3'>About <img className='w-3' src={assets.info_icon} alt="" /></p>
-                        <p className='text-sm text-gray-600 max-w-[700px] mt-1'>{docInfo.about}</p>
+                        <p className='text-sm text-gray-600 max-w-[700px] mt-1'>{dentist.about}</p>
                     </div>
 
-                    <p className='text-gray-600 font-medium mt-4'>Appointment fee: <span className='text-gray-800'>{currencySymbol}{docInfo.fees}</span> </p>
+                    <p className='text-gray-600 font-medium mt-4'>Appointment fee: <span className='text-gray-800'>{currencySymbol}{100}</span> </p>
                 </div>
             </div>
 
@@ -181,7 +181,7 @@ const Appointment = () => {
             </div>
 
             {/* Listing Releated Doctors */}
-            <RelatedDoctors speciality={docInfo.speciality} docId={docId} />
+            <RelatedDoctors speciality={dentist.speciality} dentistId={dentistId} />
         </div>
     ) : null
 }

@@ -1,9 +1,11 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.AppointmentDto;
 import com.example.demo.dto.DentistDto;
 import com.example.demo.dto.PatientDto;
-import com.example.demo.service.PatientService;
-import com.example.demo.service.S3Service;
+import com.example.demo.dto.TreatmentDto;
+import com.example.demo.model.Treatment;
+import com.example.demo.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -11,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.sql.Time;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -26,6 +29,12 @@ public class UserController {
     private final PatientService patientService;
 
     private final S3Service S3Service;
+
+    private final AppointmentService appointmentService;
+
+    private final DentistService dentistService;
+
+    private final TreatmentService treatmentService;
 
     @PostMapping("/login")
     public ResponseEntity<Map<String, Object>> login(@RequestBody Map<String, String> request) {
@@ -82,7 +91,7 @@ public class UserController {
 
     @GetMapping("/get-profile")
     public ResponseEntity<Map<String, Object>> getUserProfile(@RequestHeader(value = "token", required = false) String token,
-                                                                @RequestParam(value = "userId", required = false) Integer userId) {
+                                                              @RequestParam(value = "userId", required = false) Integer userId) {
         Map<String, Object> response = new HashMap<>();
 
         try {
@@ -181,4 +190,115 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/appointments")
+    public ResponseEntity<Map<String, Object>> getAppointments(@RequestHeader(value = "token", required = false) String token,
+                                                               @RequestParam(value = "userId", required = false) Integer userId) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            // Validate the token
+            if (token == null || token.isEmpty()) {
+                response.put("success", false);
+                response.put("message", "Token is missing or invalid");
+                return ResponseEntity.badRequest().body(response);
+            }
+
+            // Fetch appointments using service
+            response.put("success", true);
+            response.put("appointments", appointmentService.findAppointmentsByPatientId(userId));
+
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "An error occurred: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/cancel-appointment")
+    public ResponseEntity<Map<String, Object>> cancelAppointment(@RequestBody Map<String, Integer> request,
+                                                                 @RequestHeader(value = "token", required = false) String token)
+    {
+        try {
+            Map<String, Object> response = new HashMap<>();
+            // Kiểm tra token nếu cần thiết (tùy vào yêu cầu bảo mật của bạn)
+            if (token == null || token.isEmpty()) {
+                response.put("success", false);
+                response.put("message", "Token is missing or invalid");
+                return ResponseEntity.badRequest().body(response);
+            }
+
+            int appointmentId = Integer.parseInt(request.get("appointmentId").toString());
+            AppointmentDto appointment = appointmentService.findAppointmentById(appointmentId);
+            if (appointment == null) {
+                Map<String, Object> notFoundResponse = new HashMap<>();
+                notFoundResponse.put("success", false);
+                notFoundResponse.put("message", "Appointment not found");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(notFoundResponse);
+            }
+
+            appointment.setCancelled(true);
+            appointmentService.save(appointment);
+
+            response.put("success", true);
+            response.put("message", "Appointment cancelled successfully");
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+    }
+
+    @PostMapping("/book-appointment")
+    public ResponseEntity<Map<String, Object>> bookAppointment(@RequestBody Map<String, String> request,
+                                                               @RequestHeader(value = "token", required = false) String token) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            // Validate the token
+            if (token == null || token.isEmpty()) {
+                response.put("success", false);
+                response.put("message", "Token is missing or invalid");
+                return ResponseEntity.badRequest().body(response);
+            }
+            int dentistId = Integer.parseInt(request.get("dentistId").toString());
+            String slotDate = request.get("slotDate").toString();
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd"); // Định dạng ngày phù hợp
+            Date appointmentDate = sdf.parse(slotDate);
+            Time appointmentTime = Time.valueOf(request.get("slotTime").toString());
+            int patientId = Integer.parseInt(request.get("userId").toString());
+
+            AppointmentDto appointmentDto = new AppointmentDto();
+            appointmentDto.setPatientId(patientId);
+            appointmentDto.setAppointmentDate(appointmentDate);
+            appointmentDto.setAppointmentTime(appointmentTime);
+            appointmentDto.setCancelled(false);
+            appointmentDto.setIsCompleted(false);
+            DentistDto dentist = dentistService.findDentistById(dentistId);
+            appointmentDto.setDentist(dentist);
+
+            TreatmentDto treatmentDto = new TreatmentDto();
+            treatmentDto.setFees(100);
+            treatmentDto.setPatientId(patientId);
+            treatmentDto.setDentistId(dentistId);
+
+            // Save the appointment and treatment
+            appointmentService.save(appointmentDto);
+            treatmentService.save(treatmentDto);
+
+            response.put("success", true);
+            response.put("message", "Appointment booked successfully");
+
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "An error occurred: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+        return ResponseEntity.ok(response);
+    }
 }

@@ -38,5 +38,12 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Intege
     """)
     List<Appointment> findAppointmentByDentistId(@Param("dentistId") int dentistId);
 
+    @Query("""
+        SELECT a
+        FROM Appointment a
+        WHERE a.patient.id = :patientId
+    """)
+    List<Appointment> findAppointmentsByPatientId(@Param("patientId") int patientId);
+
 }
 

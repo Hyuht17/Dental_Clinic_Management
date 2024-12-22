@@ -1,8 +1,10 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.AppointmentDto;
+import com.example.demo.dto.PatientDto;
 import com.example.demo.dto.TreatmentDto;
 import com.example.demo.model.Appointment;
+import com.example.demo.model.Patient;
 import com.example.demo.model.Treatment;
 import com.example.demo.repository.TreatmentRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +20,17 @@ public class TreatmentServiceImpl implements TreatmentService {
 
     private final TreatmentRepository treatmentRepository;
 
+    @Override
+    public TreatmentDto save(TreatmentDto treatmentDto) {
+        Treatment treatment = toEntity(treatmentDto);
+        treatment = treatmentRepository.save(treatment);
+        return toDto(treatment);
+    }
+
+    private Treatment toEntity(TreatmentDto treatmentDto) {
+        Treatment treatment = modelMapper.map(treatmentDto, Treatment.class);
+        return treatment;
+    }
 
     private TreatmentDto toDto(Treatment treatment) {
         int patientId = treatment.getPatient().getId();

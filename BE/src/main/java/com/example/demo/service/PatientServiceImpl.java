@@ -1,9 +1,12 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.AppointmentDto;
 import com.example.demo.dto.DentistDto;
 import com.example.demo.dto.PatientDto;
+import com.example.demo.model.Appointment;
 import com.example.demo.model.Dentist;
 import com.example.demo.model.Patient;
+import com.example.demo.repository.AppointmentRepository;
 import com.example.demo.repository.PatientRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -20,6 +23,7 @@ public class PatientServiceImpl implements PatientService {
     private final PatientRepository patientRepository;
 
     private final ModelMapper modelMapper;
+    private final AppointmentRepository appointmentRepository;
 
     @Override
     public PatientDto save(PatientDto patientDto) {
@@ -113,4 +117,6 @@ public class PatientServiceImpl implements PatientService {
         }
         return null;
     }
+
+
 }

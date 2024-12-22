@@ -10,6 +10,7 @@ public class AppMapper {
     public ModelMapper modelMapper() {
         ModelMapper modelMapper = new ModelMapper();
         modelMapper.addMappings(new AppointmentDtoToAppointmentMap());
+        modelMapper.addMappings(new TreatmentDtoToTreatmentMap());
         return modelMapper;
     }
 }

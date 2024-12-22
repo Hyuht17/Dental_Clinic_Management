@@ -29,10 +29,11 @@ public class DentistDto {
     private String about;
     private String position;
 
-    public DentistDto(int id, String name, String imgUrl) {
+    public DentistDto(int id, String name, String imgUrl, String speciality) {
         this.dentistId = id;
         this.name = name;
         this.imgUrl = imgUrl;
+        this.speciality = speciality;
     }
 
 }

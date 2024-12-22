@@ -65,7 +65,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     public DentistDto findDentistByAppointmentId(int appointmentId) {
         // Find Dentist associated with the Appointment by ID
         Optional<Dentist> dentistOptional = appointmentRepository.findAppointmentWithDentist(appointmentId);
-        return dentistOptional.map(d -> new DentistDto(d.getId(), d.getName(), d.getImgUrl()))
+        return dentistOptional.map(d -> new DentistDto(d.getId(), d.getName(), d.getImgUrl(), d.getSpeciality()))
                 .orElse(null); // Return null if no Dentist found
     }
 
@@ -90,6 +90,15 @@ public class AppointmentServiceImpl implements AppointmentService {
         List<Appointment> appointments = appointmentRepository.findAppointmentByDentistId(dentistId);
         return appointments.stream().map(this::toDto).toList();
     }
-
+    @Override
+    public List<AppointmentDto> findAppointmentsByPatientId(int patientId) {
+        List<Appointment> appointments = appointmentRepository.findAppointmentsByPatientId(patientId);
+        List<AppointmentDto> appointmentDtos = appointments.stream().map(this::toDto).toList();
+        for (AppointmentDto appointment : appointmentDtos) {
+            DentistDto dentist = findDentistByAppointmentId(appointment.getAppointmentId());
+            appointment.setDentist(dentist);
+        }
+        return appointmentDtos;
+    }
 
 }

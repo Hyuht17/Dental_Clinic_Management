@@ -17,4 +17,6 @@ public interface AppointmentService {
     List<AppointmentDto> findAppointmentsWithDentists();
     AppointmentDto findAppointmentById(int appointmentId);
     List<AppointmentDto> findAppointmentByDentistId(int dentistId);
+    List<AppointmentDto> findAppointmentsByPatientId(int patientId);
+
 }
