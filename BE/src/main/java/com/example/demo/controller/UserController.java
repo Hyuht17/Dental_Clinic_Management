@@ -331,12 +331,12 @@ public class UserController {
             appointmentDto.setIsCompleted(false);
             DentistDto dentist = dentistService.findDentistById(dentistId);
             appointmentDto.setDentist(dentist);
-            appointmentService.save(appointmentDto);
+            AppointmentDto savedAppointment = appointmentService.save(appointmentDto);
 
             TreatmentDto treatmentDto = new TreatmentDto();
             treatmentDto.setPatientId(patientId);
             treatmentDto.setDentistId(dentistId);
-            treatmentDto.setAppointmentId(appointmentDto.getAppointmentId());
+            treatmentDto.setAppointmentId(savedAppointment.getAppointmentId());
             treatmentDto.setFees(100);
 
             treatmentService.save(treatmentDto);

@@ -29,7 +29,7 @@ public class Treatment {
     @JoinColumn(name = "dentist_id", nullable = false)
     private Dentist dentist;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
     @JoinColumn(name = "appointment_id", nullable = false)
     private Appointment appointment;
 
