@@ -9,6 +9,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.sql.Time;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -44,6 +46,24 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Intege
         WHERE a.patient.id = :patientId
     """)
     List<Appointment> findAppointmentsByPatientId(@Param("patientId") int patientId);
+
+    @Query("""
+        SELECT a.appointmentTime
+        FROM Appointment a
+        JOIN Treatment t ON a.id = t.appointment.id
+        WHERE t.dentist.id = :dentistId
+        AND a.appointmentDate = :date
+    """)
+    List<Time> getAvailableTimeSlots(@Param("dentistId") int dentistId, @Param("date") Date date);
+
+    @Query("""
+        SELECT a
+        FROM Appointment a
+        JOIN Treatment t ON a.id = t.appointment.id
+        WHERE t.dentist.id = :dentistId
+        AND a.appointmentDate = :date
+    """)
+    List<Appointment> findByDentistIdAndAppointmentDate(@Param("dentistId") int dentistId, @Param("date") Date date);
 
 }
 

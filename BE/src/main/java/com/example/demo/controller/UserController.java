@@ -15,9 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.sql.Time;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static com.example.demo.config.GenToken.generateToken;
 
@@ -254,6 +252,47 @@ public class UserController {
         }
     }
 
+    @GetMapping("/{dentistId}/available-slots")
+    public ResponseEntity<Map<String, Object>> getAvailableSlots(@PathVariable int dentistId) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            DentistDto dentist = dentistService.findDentistById(dentistId);
+            if (dentist == null) {
+                response.put("success", false);
+                response.put("message", "Dentist not found");
+                return ResponseEntity.badRequest().body(response);
+            }
+
+            List<Map<String, Object>> availableSlots = new ArrayList<>();
+            Calendar calendar = Calendar.getInstance();
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+            // Check slots for the next 7 days
+            for (int i = 0; i < 7; i++) {
+                Map<String, Object> daySlots = new HashMap<>();
+                Date currentDate = calendar.getTime();
+                daySlots.put("date", sdf.format(currentDate));
+
+                List<String> timeSlots = appointmentService.getAvailableTimeSlots(dentistId, currentDate);
+                daySlots.put("slots", timeSlots);
+
+                availableSlots.add(daySlots);
+                calendar.add(Calendar.DATE, 1);
+            }
+
+            response.put("success", true);
+            response.put("data", availableSlots);
+            response.put("docSlotlength", availableSlots.size());
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "An error occurred: " + e.getMessage());
+            return ResponseEntity.status(500).body(response);
+        }
+
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping("/book-appointment")
     public ResponseEntity<Map<String, Object>> bookAppointment(@RequestBody Map<String, String> request,
                                                                @RequestHeader(value = "token", required = false) String token) {
@@ -266,12 +305,23 @@ public class UserController {
                 response.put("message", "Token is missing or invalid");
                 return ResponseEntity.badRequest().body(response);
             }
-            int dentistId = Integer.parseInt(request.get("dentistId").toString());
-            String slotDate = request.get("slotDate").toString();
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd"); // Định dạng ngày phù hợp
+
+            int dentistId = Integer.parseInt(request.get("dentistId"));
+            String slotDate = request.get("slotDate");
+            String slotTime = request.get("slotTime");
+            int patientId = Integer.parseInt(request.get("userId"));
+
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
             Date appointmentDate = sdf.parse(slotDate);
-            Time appointmentTime = Time.valueOf(request.get("slotTime").toString());
-            int patientId = Integer.parseInt(request.get("userId").toString());
+            Time appointmentTime = Time.valueOf(slotTime + ":00");
+
+            // Check if the slot is still available
+           boolean isAvailable = appointmentService.isSlotAvailable(dentistId, appointmentDate, appointmentTime);
+            if (!isAvailable) {
+                response.put("success", false);
+                response.put("message", "The selected slot is no longer available");
+                return ResponseEntity.badRequest().body(response);
+            }
 
             AppointmentDto appointmentDto = new AppointmentDto();
             appointmentDto.setPatientId(patientId);
@@ -281,14 +331,14 @@ public class UserController {
             appointmentDto.setIsCompleted(false);
             DentistDto dentist = dentistService.findDentistById(dentistId);
             appointmentDto.setDentist(dentist);
+            appointmentService.save(appointmentDto);
 
             TreatmentDto treatmentDto = new TreatmentDto();
-            treatmentDto.setFees(100);
             treatmentDto.setPatientId(patientId);
             treatmentDto.setDentistId(dentistId);
+            treatmentDto.setAppointmentId(appointmentDto.getAppointmentId());
+            treatmentDto.setFees(100);
 
-            // Save the appointment and treatment
-            appointmentService.save(appointmentDto);
             treatmentService.save(treatmentDto);
 
             response.put("success", true);
@@ -297,8 +347,9 @@ public class UserController {
         } catch (Exception e) {
             response.put("success", false);
             response.put("message", "An error occurred: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+            return ResponseEntity.status(500).body(response);
         }
+
         return ResponseEntity.ok(response);
     }
 }

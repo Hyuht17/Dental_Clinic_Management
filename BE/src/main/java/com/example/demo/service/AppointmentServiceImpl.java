@@ -2,20 +2,21 @@ package com.example.demo.service;
 
 import com.example.demo.dto.AppointmentDto;
 import com.example.demo.dto.DentistDto;
-import com.example.demo.dto.TreatmentDto;
 import com.example.demo.model.Appointment;
 import com.example.demo.model.Dentist;
 import com.example.demo.model.Patient;
-import com.example.demo.model.Treatment;
 import com.example.demo.repository.AppointmentRepository;
 import com.example.demo.repository.PatientRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+import java.sql.Time;
+import java.time.LocalTime;
+import java.util.*;
 import java.util.stream.Collectors;
+
+import static java.util.Arrays.stream;
 
 
 @Service
@@ -101,4 +102,52 @@ public class AppointmentServiceImpl implements AppointmentService {
         return appointmentDtos;
     }
 
+    @Override
+    public List<String> getAvailableTimeSlots(int dentistId, Date appointmentDate) {
+
+        List<String> allTimeSlots = generateTimeSlots(LocalTime.of(9, 0), LocalTime.of(17, 0), 30);
+
+        // Fetch all booked appointments for the dentist on the given date
+        List<String> bookedTimeSlots = Collections.singletonList(appointmentRepository
+                .findByDentistIdAndAppointmentDate(dentistId, appointmentDate)
+                .stream()
+                .map(Appointment::getAppointmentTime) // Extract appointment time as string
+                .collect(Collectors.toList())
+                .stream().toString());
+
+        // Filter out booked time slots
+        List<String> availableTimeSlots = allTimeSlots.stream()
+                .filter(slot -> !bookedTimeSlots.contains(slot))
+                .collect(Collectors.toList());
+
+        return availableTimeSlots;
+    }
+
+
+    private List<String> generateTimeSlots(LocalTime startTime, LocalTime endTime, int intervalMinutes) {
+        List<String> timeSlots = new ArrayList<>();
+        LocalTime currentTime = startTime;
+
+        while (currentTime.isBefore(endTime)) {
+            timeSlots.add(currentTime.toString());
+            currentTime = currentTime.plusMinutes(intervalMinutes);
+        }
+
+        return timeSlots;
+    }
+
+    @Override
+    public Boolean isSlotAvailable(int dentistId, Date appointmentDate, Time appointmentTime) {
+        // Fetch appointments for the given dentist and date
+        List<Appointment> existingAppointments = appointmentRepository.findByDentistIdAndAppointmentDate(dentistId, appointmentDate);
+
+        // Check if any appointment matches the given time
+        for (Appointment appointment : existingAppointments) {
+            if (appointment.getAppointmentTime().equals(appointmentTime)) {
+                return false; // Slot is already booked
+            }
+        }
+
+        return true; // Slot is available
+    }
 }

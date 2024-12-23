@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -69,11 +70,7 @@ public class DentistController {
 
         try {
             // Validate the token
-            if (dToken == null || dToken.isEmpty()) {
-                response.put("success", false);
-                response.put("message", "Token is missing or invalid");
-                return ResponseEntity.badRequest().body(response);
-            }
+
 
             // Fetch profile using service
             DentistDto profileData = dentistService.findDentistById(dentistId);
@@ -306,6 +303,7 @@ public class DentistController {
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("dentists", dentists);
+            response.put("length", dentists.size());
 
             return ResponseEntity.ok(response);
 

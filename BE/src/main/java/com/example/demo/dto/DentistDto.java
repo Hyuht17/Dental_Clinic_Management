@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Date;
 import java.util.List;
 
 @Data
@@ -28,7 +29,6 @@ public class DentistDto {
     private List<String> roles;
     private String about;
     private String position;
-
     public DentistDto(int id, String name, String imgUrl, String speciality) {
         this.dentistId = id;
         this.name = name;

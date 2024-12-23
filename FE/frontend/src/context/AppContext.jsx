@@ -10,6 +10,7 @@ const AppContextProvider = (props) => {
     const backendUrl = import.meta.env.VITE_BACKEND_URL
 
     const [dentists, setDentists] = useState([])
+    const [length, setLength] = useState([])
     const [userId, setUserId] = useState(localStorage.getItem('userId') ? localStorage.getItem('userId') : '')
     const [token, setToken] = useState(localStorage.getItem('token') ? localStorage.getItem('token') : '')
     const [userData, setUserData] = useState(false)
@@ -22,6 +23,7 @@ const AppContextProvider = (props) => {
             const { data } = await axios.get(backendUrl + '/api/doctor/list')
             if (data.success) {
                 setDentists(data.dentists)
+                setLength(data.length)
             } else {
                 toast.error(data.message)
             }
@@ -64,6 +66,7 @@ const AppContextProvider = (props) => {
     }, [token])
 
     const value = {
+        length, setLength,
         dentists, setDentists, getDoctorsData,
         currencySymbol,
         backendUrl,

@@ -16,5 +16,5 @@ public class TreatmentDto {
     private int dentistId;
     private double fees;
     private String notes;
-
+    private int appointmentId;
 }
