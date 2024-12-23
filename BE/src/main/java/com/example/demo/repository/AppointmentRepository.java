@@ -22,9 +22,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Intege
         SELECT d
         FROM Dentist d
         JOIN Treatment t ON d.id = t.dentist.id
-        JOIN Appointment a ON a.patient.id = t.patient.id
-        Join Patient p ON p.id = t.patient.id
-        WHERE a.id = :appointmentId
+        WHERE t.appointment.id = :appointmentId
     """)
     Optional<Dentist> findAppointmentWithDentist(@Param("appointmentId") int appointmentId);
 

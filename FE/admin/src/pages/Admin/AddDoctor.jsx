@@ -12,7 +12,7 @@ const AddDoctor = () => {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [fees, setFees] = useState('')
-    const [speciality, setSpeciality] = useState('General physician')
+    const [speciality, setSpeciality] = useState('General Dentistry')
     const [about, setAbout] = useState('')
     const { backendUrl } = useContext(AppContext)
     const { aToken } = useContext(AdminContext)

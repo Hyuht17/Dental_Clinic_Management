@@ -108,12 +108,11 @@ public class AppointmentServiceImpl implements AppointmentService {
         List<String> allTimeSlots = generateTimeSlots(LocalTime.of(9, 0), LocalTime.of(17, 0), 30);
 
         // Fetch all booked appointments for the dentist on the given date
-        List<String> bookedTimeSlots = Collections.singletonList(appointmentRepository
+        List<String> bookedTimeSlots = appointmentRepository
                 .findByDentistIdAndAppointmentDate(dentistId, appointmentDate)
                 .stream()
-                .map(Appointment::getAppointmentTime) // Extract appointment time as string
-                .collect(Collectors.toList())
-                .stream().toString());
+                .map(appointment -> appointment.getAppointmentTime().toString()) // Trích xuất và chuyển đổi thời gian cuộc hẹn thành chuỗi
+                .collect(Collectors.toList());
 
         // Filter out booked time slots
         List<String> availableTimeSlots = allTimeSlots.stream()
@@ -121,6 +120,7 @@ public class AppointmentServiceImpl implements AppointmentService {
                 .collect(Collectors.toList());
 
         return availableTimeSlots;
+
     }
 
 

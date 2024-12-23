@@ -316,11 +316,11 @@ public class UserController {
             Time appointmentTime = Time.valueOf(slotTime + ":00");
 
             // Check if the slot is still available
-           boolean isAvailable = appointmentService.isSlotAvailable(dentistId, appointmentDate, appointmentTime);
+            boolean isAvailable = appointmentService.isSlotAvailable(dentistId, appointmentDate, appointmentTime);
             if (!isAvailable) {
                 response.put("success", false);
-                response.put("message", "The selected slot is no longer available");
-                return ResponseEntity.badRequest().body(response);
+                response.put("message", "Vui lòng đặt giờ khác. Slot đã được đặt bởi ai đó.");
+                return ResponseEntity.ok(response);
             }
 
             AppointmentDto appointmentDto = new AppointmentDto();
