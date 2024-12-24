@@ -4,6 +4,7 @@ import com.example.demo.dto.AppointmentDto;
 import com.example.demo.dto.DentistDto;
 import com.example.demo.dto.PatientDto;
 import com.example.demo.dto.TreatmentDto;
+import com.example.demo.model.Appointment;
 import com.example.demo.model.Treatment;
 import com.example.demo.service.*;
 import lombok.RequiredArgsConstructor;
@@ -293,10 +294,40 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/update-payment")
+    public ResponseEntity<Map<String, Object>> updatePayment(@RequestBody Map<String, Integer> request,
+                                                             @RequestHeader(value = "token", required = false) String token){
+        Map<String, Object> response = new HashMap<>();
+        try {
+            // Validate the token
+            if (token == null || token.isEmpty()) {
+                response.put("success", false);
+                response.put("message", "Token is missing or invalid");
+                return ResponseEntity.badRequest().body(response);
+            }
+
+            int appointmentId = Integer.parseInt(request.get("appointmentId").toString());
+
+            AppointmentDto appointment = appointmentService.findAppointmentById(appointmentId);
+            appointment.setIsPaid(true);
+            appointmentService.save(appointment);
+
+            response.put("success", true);
+            response.put("message", "Appointment updated successfully.");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "An error occurred: " + e.getMessage());
+            return ResponseEntity.status(500).body(response);
+        }
+    }
+
+
     @PostMapping("/book-appointment")
     public ResponseEntity<Map<String, Object>> bookAppointment(@RequestBody Map<String, String> request,
                                                                @RequestHeader(value = "token", required = false) String token) {
         Map<String, Object> response = new HashMap<>();
+
 
         try {
             // Validate the token
@@ -319,7 +350,7 @@ public class UserController {
             boolean isAvailable = appointmentService.isSlotAvailable(dentistId, appointmentDate, appointmentTime);
             if (!isAvailable) {
                 response.put("success", false);
-                response.put("message", "Vui lòng đặt giờ khác. Slot đã được đặt bởi ai đó.");
+                response.put("message", "Please choose another time. This one is already booked");
                 return ResponseEntity.ok(response);
             }
 

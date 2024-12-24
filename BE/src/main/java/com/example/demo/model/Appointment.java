@@ -40,4 +40,7 @@ public class Appointment {
 
     @Column(name = "is_completed")
     private Boolean isCompleted;
+
+    @Column(name = "is_paid")
+    private Boolean isPaid;
 }
