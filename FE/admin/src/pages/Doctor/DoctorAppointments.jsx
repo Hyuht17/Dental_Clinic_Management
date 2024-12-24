@@ -36,9 +36,9 @@ const DoctorAppointments = () => {
               <img src={item.patientImgUrl} className='w-8 rounded-full' alt="" /> <p>{item.patientName}</p>
             </div>
             <div>
-              <p className='text-xs inline border border-primary px-2 rounded-full'>
-                  Online
-              </p>
+            <p className={`text-xs inline border ${item.isPaid ? 'border-green-500' : 'border-red-500'} px-2 rounded-full`}>
+                {item.isPaid ? 'Paid' : "Not Paid"}
+            </p>
             </div>
             {/* <p className='max-sm:hidden'>{calculateAge(item.patient.dob)}</p> */}
             <p>{slotDateFormat(item.appointmentDate)}</p>
