@@ -149,14 +149,14 @@ public class DentistController {
     @GetMapping("/dashboard")
     public ResponseEntity<Map<String, Object>> getDashboard(@RequestHeader(value = "dToken", required = false) String dToken,
                                                             @RequestParam(value = "dentistId", required = false) Integer dentistId) {
-        try{
+        try {
             if (validateToken(dToken)) {
                 Map<String, Object> response = new HashMap<>();
             }
             List<AppointmentDto> appointments = appointmentService.findAppointmentByDentistId(dentistId);
             List<PatientDto> patients = patientService.findPatientByDentistId(dentistId);
             List<TreatmentDto> treatments = treatmentService.findTreatmentByDentistId(dentistId);
-            
+
             Map<String, Object> response = new HashMap<>();
             Map<String, Object> dashData = new HashMap<>();
 
@@ -174,13 +174,14 @@ public class DentistController {
                 AppointmentDto appointment = appointments.get(i);
                 appointment.setFees(feesList.get(i)); // Gán fees trực tiếp dưới dạng Double
             }
-            
-            
+
             double totalFees = 0;
-            // Gán fees vào từng appointment
-            for (int i = 0; i < appointments.size() && i < feesList.size(); i++) {
+            // Tính tổng fees, chỉ tính khi IsPaid = 1 và không bị hủy
+            for (int i = 0; i < appointments.size(); i++) {
                 AppointmentDto appointment = appointments.get(i);
-                totalFees = appointment.getFees() + totalFees;
+                if (appointment.getIsPaid() == true) {
+                    totalFees += appointment.getFees();
+                }
             }
 
             response.put("totalFees", totalFees);
@@ -195,6 +196,7 @@ public class DentistController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
+
 
     @PostMapping("/cancel-appointment")
     public ResponseEntity<Map<String, Object>> cancelAppointment(@RequestHeader(value = "dToken", required = false) String dToken,

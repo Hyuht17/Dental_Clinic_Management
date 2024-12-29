@@ -360,6 +360,7 @@ public class UserController {
             appointmentDto.setAppointmentTime(appointmentTime);
             appointmentDto.setCancelled(false);
             appointmentDto.setIsCompleted(false);
+            appointmentDto.setIsPaid(false);
             DentistDto dentist = dentistService.findDentistById(dentistId);
             appointmentDto.setDentist(dentist);
             AppointmentDto savedAppointment = appointmentService.save(appointmentDto);
